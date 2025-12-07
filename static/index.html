@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axi-Vid - Video Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Axi-Vid</h1>
+            <div class="room-info">
+                <span id="room-id-display">Room: Loading...</span>
+                <button id="copy-link-btn" class="btn btn-secondary">Copy Link</button>
+            </div>
+        </header>
+
+        <div id="status-bar" class="status-bar">
+            <span id="connection-status" class="status">Connecting...</span>
+        </div>
+
+        <div class="video-container">
+            <div class="video-wrapper" id="remote-video-wrapper">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="video-label">Remote</div>
+                <div id="remote-status" class="peer-status"></div>
+            </div>
+            <div class="video-wrapper local" id="local-video-wrapper">
+                <video id="local-video" autoplay playsinline muted></video>
+                <div class="video-label">You</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="start-call-btn" class="btn btn-primary">Start Call</button>
+            <button id="toggle-audio-btn" class="btn btn-control" disabled>Mute</button>
+            <button id="toggle-video-btn" class="btn btn-control" disabled>Hide Video</button>
+            <button id="hang-up-btn" class="btn btn-danger" disabled>Hang Up</button>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-header">
+                <h3>Text Chat</h3>
+                <button id="toggle-chat-btn" class="btn btn-small">Hide</button>
+            </div>
+            <div id="chat-container" class="chat-container">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-input" placeholder="Type a message..." disabled>
+                    <button id="send-chat-btn" class="btn btn-primary btn-small" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="waiting-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <p>Waiting for peer to join...</p>
+                <p class="small">Share this link with someone to start a call</p>
+            </div>
+        </div>
+
+        <div id="permission-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h2>Camera/Microphone Access Required</h2>
+                <p id="permission-error-msg">Please allow access to your camera and microphone.</p>
+                <button id="retry-permission-btn" class="btn btn-primary">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.ROOM_ID = "{{ROOM_ID}}";
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
