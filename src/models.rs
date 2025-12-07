@@ -4,6 +4,7 @@
 //! for type discrimination.
 
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 /// Incoming messages from WebSocket clients
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,13 +63,6 @@ impl WsMessage {
         }
     }
 
-    /// Create a peer status message
-    pub fn peer_status(status: impl Into<String>) -> Self {
-        WsMessage::PeerStatus {
-            status: status.into(),
-        }
-    }
-
     /// Create a room info message
     pub fn room_info(peer_count: usize) -> Self {
         WsMessage::RoomInfo { peer_count }
@@ -76,8 +70,26 @@ impl WsMessage {
 }
 
 /// Response for room creation
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct CreateRoomResponse {
+    /// The unique identifier for the created room (UUID)
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
     pub room_id: String,
+    /// The WebSocket URL path for connecting to this room
+    #[schema(example = "/ws/550e8400-e29b-41d4-a716-446655440000")]
     pub ws_url: String,
+}
+
+/// Room status response
+#[derive(Debug, Serialize, ToSchema)]
+pub struct RoomStatus {
+    /// The room identifier
+    #[schema(example = "550e8400-e29b-41d4-a716-446655440000")]
+    pub room_id: String,
+    /// Number of peers currently in the room
+    #[schema(example = 1)]
+    pub peer_count: usize,
+    /// Whether the room can accept more peers (max 2)
+    #[schema(example = true)]
+    pub available: bool,
 }

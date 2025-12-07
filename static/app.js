@@ -50,7 +50,7 @@
         sendChatBtn: document.getElementById('send-chat-btn'),
         toggleChatBtn: document.getElementById('toggle-chat-btn'),
         chatContainer: document.getElementById('chat-container'),
-        waitingOverlay: document.getElementById('waiting-overlay'),
+        waitingBanner: document.getElementById('waiting-banner'),
         permissionOverlay: document.getElementById('permission-overlay'),
         permissionErrorMsg: document.getElementById('permission-error-msg'),
         retryPermissionBtn: document.getElementById('retry-permission-btn')
@@ -169,16 +169,16 @@
         const peerCount = msg.peer_count;
         if (peerCount === 1) {
             setStatus('Waiting for peer...', 'waiting');
-            elements.waitingOverlay.classList.remove('hidden');
+            elements.waitingBanner.classList.remove('hidden');
         } else if (peerCount === 2) {
             setStatus('Peer connected', 'connected');
-            elements.waitingOverlay.classList.add('hidden');
+            elements.waitingBanner.classList.add('hidden');
         }
     }
 
     function handlePeerJoined() {
         setStatus('Peer joined', 'connected');
-        elements.waitingOverlay.classList.add('hidden');
+        elements.waitingBanner.classList.add('hidden');
         addSystemMessage('A peer has joined the room');
 
         // If we're already in a call and have local stream, we're the caller
@@ -415,7 +415,7 @@
             createOffer();
         } else {
             setStatus('Waiting for peer...', 'waiting');
-            elements.waitingOverlay.classList.remove('hidden');
+            elements.waitingBanner.classList.remove('hidden');
         }
 
         updateControlButtons();

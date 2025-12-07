@@ -306,3 +306,26 @@ body {
 .overlay-content p.small {
     font-size: 0.875rem;
 }
+
+.waiting-banner {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.waiting-banner p {
+    color: #856404;
+    margin: 0;
+}
+
+.waiting-banner p.small {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.waiting-banner.hidden {
+    display: none;
+}

@@ -14,10 +14,18 @@ use tokio::sync::mpsc;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
-use crate::models::{CreateRoomResponse, WsMessage};
+use crate::models::{CreateRoomResponse, RoomStatus, WsMessage};
 use crate::state::AppState;
 
 /// Create a new room and return its ID
+#[utoipa::path(
+    post,
+    path = "/api/create-room",
+    tag = "Rooms",
+    responses(
+        (status = 200, description = "Room created successfully", body = CreateRoomResponse)
+    )
+)]
 pub async fn create_room(State(state): State<AppState>) -> Json<CreateRoomResponse> {
     let room_id = Uuid::new_v4().to_string();
     state.create_room(room_id.clone()).await;
@@ -211,20 +219,39 @@ async fn handle_text_message(text: &str, room_id: &str, peer_id: &str, state: &A
 }
 
 /// Health check endpoint
+#[utoipa::path(
+    get,
+    path = "/health",
+    tag = "Health",
+    responses(
+        (status = 200, description = "Server is healthy", body = String)
+    )
+)]
 pub async fn health_check() -> &'static str {
     "OK"
 }
 
 /// Get room status
+#[utoipa::path(
+    get,
+    path = "/api/room/{room_id}/status",
+    tag = "Rooms",
+    params(
+        ("room_id" = String, Path, description = "The UUID of the room")
+    ),
+    responses(
+        (status = 200, description = "Room status retrieved successfully", body = RoomStatus)
+    )
+)]
 pub async fn room_status(
     Path(room_id): Path<String>,
     State(state): State<AppState>,
-) -> Json<serde_json::Value> {
+) -> Json<RoomStatus> {
     let peer_count = state.get_peer_count(&room_id).await;
 
-    Json(serde_json::json!({
-        "room_id": room_id,
-        "peer_count": peer_count,
-        "available": peer_count < 2
-    }))
+    Json(RoomStatus {
+        room_id,
+        peer_count,
+        available: peer_count < 2,
+    })
 }

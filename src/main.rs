@@ -19,9 +19,35 @@ use tower_http::{
 };
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use utoipa::OpenApi;
+use utoipa_scalar::{Scalar, Servable};
 
 use crate::handlers::{create_room, health_check, index_redirect, room_page, room_status, ws_handler};
+use crate::models::{CreateRoomResponse, RoomStatus};
 use crate::state::{spawn_cleanup_task, AppState};
+
+#[derive(OpenApi)]
+#[openapi(
+    info(
+        title = "Axi-Vid API",
+        description = "A simple 1:1 video chat application using Axum and WebRTC. This API provides endpoints for room management and real-time communication via WebSockets.",
+        version = "0.1.0"
+    ),
+    tags(
+        (name = "Rooms", description = "Room management endpoints"),
+        (name = "Health", description = "Health check endpoints"),
+        (name = "WebSocket", description = "Real-time communication")
+    ),
+    paths(
+        handlers::create_room,
+        handlers::room_status,
+        handlers::health_check,
+    ),
+    components(
+        schemas(CreateRoomResponse, RoomStatus)
+    )
+)]
+struct ApiDoc;
 
 #[tokio::main]
 async fn main() {
@@ -42,6 +68,8 @@ async fn main() {
 
     // Build the router
     let app = Router::new()
+        // Scalar API documentation
+        .merge(Scalar::with_url("/docs", ApiDoc::openapi()))
         // API routes
         .route("/api/create-room", post(create_room))
         .route("/api/room/{room_id}/status", get(room_status))
@@ -63,6 +91,7 @@ async fn main() {
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     info!("Starting Axi-Vid server on http://{}", addr);
     info!("Open http://localhost:3000 in your browser to start a video call");
+    info!("API documentation available at http://localhost:3000/docs");
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

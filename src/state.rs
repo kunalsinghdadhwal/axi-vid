@@ -25,36 +25,26 @@ pub type PeerSender = mpsc::UnboundedSender<WsMessage>;
 pub struct Peer {
     pub id: String,
     pub sender: PeerSender,
-    pub joined_at: Instant,
 }
 
 impl Peer {
     pub fn new(id: String, sender: PeerSender) -> Self {
-        Self {
-            id,
-            sender,
-            joined_at: Instant::now(),
-        }
+        Self { id, sender }
     }
 }
 
 /// A video chat room containing up to 2 peers
 #[derive(Debug)]
 pub struct Room {
-    pub id: String,
     pub peers: Vec<Peer>,
-    pub created_at: Instant,
     pub last_activity: Instant,
 }
 
 impl Room {
-    pub fn new(id: String) -> Self {
-        let now = Instant::now();
+    pub fn new() -> Self {
         Self {
-            id,
             peers: Vec::with_capacity(MAX_PEERS_PER_ROOM),
-            created_at: now,
-            last_activity: now,
+            last_activity: Instant::now(),
         }
     }
 
@@ -81,11 +71,6 @@ impl Room {
         } else {
             None
         }
-    }
-
-    /// Get the other peer in the room (for 1:1 messaging)
-    pub fn get_other_peer(&self, current_peer_id: &str) -> Option<&Peer> {
-        self.peers.iter().find(|p| p.id != current_peer_id)
     }
 
     /// Broadcast message to all peers except sender
@@ -132,7 +117,7 @@ impl AppState {
         let mut rooms = self.rooms.lock().await;
         if !rooms.contains_key(&room_id) {
             info!("Creating room: {}", room_id);
-            rooms.insert(room_id.clone(), Room::new(room_id.clone()));
+            rooms.insert(room_id.clone(), Room::new());
         }
         room_id
     }
@@ -149,7 +134,7 @@ impl AppState {
         // Create room if it doesn't exist
         let room = rooms
             .entry(room_id.to_string())
-            .or_insert_with(|| Room::new(room_id.to_string()));
+            .or_insert_with(Room::new);
 
         if room.is_full() {
             return Err("Room is full (max 2 peers for 1:1 call)");
